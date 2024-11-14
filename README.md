@@ -3,7 +3,7 @@
 ```
 git clone https://github.com/mozi1924/text2arch.git
 ```
-It is actually a quaternary codec that uses [mdui](https://www.mdui.org/) as the interface framework
+This is actually a quaternary encoder that uses [mdui](https://www.mdui.org) as the interface
 
 Here’s how it works
 ```
