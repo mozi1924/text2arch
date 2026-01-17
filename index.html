@@ -1,24 +1,13 @@
-<!DOCTYPE html>
-<html class="mdui-theme-dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-time Text to Base4 Conversion</title>
-    <link rel="stylesheet" href="./mdui/mdui.css">
-    <link rel="stylesheet" href="./customstyles.css">
-    <script src="./mdui/mdui.global.js"></script>
-    <script src="./custom-scricpts.js"></script>
-</head>
-<body>
-    <mdui-select value="encrypt" id="mode" label="Choose Mode" onchange="processText()">
-        <mdui-menu-item value="encrypt">Encrypt</mdui-menu-item>
-        <mdui-menu-item value="decrypt">Decrypt</mdui-menu-item>
-    </mdui-select>
-    <br><br>
-    <mdui-text-field clearable label="Enter Text" id="inputText" rows="5" cols="50" oninput="processText()"></mdui-text-field>
-    <mdui-card clickable id="resultCard" onclick="copyToClipboard()">
-        <p id="result"></p>
-    </mdui-card>
-    <p>Made By <a href="https://t.me/mozi1924">mozi1924</a> </p>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Text2Arch - Professional Editor</title>
+  </head>
+  <body class="bg-gray-900 text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
