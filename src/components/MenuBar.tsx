@@ -13,6 +13,7 @@ interface MenuBarProps {
   onPaste: () => void;
   onClear: () => void;
   onAbout: () => void;
+  onResetLayout: () => void;
 }
 
 export function MenuBar({ 
@@ -26,7 +27,8 @@ export function MenuBar({
   onCopy,
   onPaste,
   onClear,
-  onAbout
+  onAbout,
+  onResetLayout
 }: MenuBarProps) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -55,6 +57,9 @@ export function MenuBar({
       { label: 'Paste', action: onPaste },
       { type: 'separator' },
       { label: 'Clear All', action: onClear },
+    ],
+    Window: [
+      { label: 'Reset Layout', action: onResetLayout },
     ],
     About: [
       { label: 'About Text2Arch', action: onAbout },

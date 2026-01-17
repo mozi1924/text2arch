@@ -1,6 +1,6 @@
 
-
 import { RefObject } from 'react';
+import Editor from 'react-simple-code-editor';
 
 interface EditorPaneProps {
   value: string;
@@ -10,9 +10,10 @@ interface EditorPaneProps {
   fontClass?: string;
   placeholder?: string;
   lineNumbers?: boolean;
-  inputRef?: RefObject<HTMLTextAreaElement>;
+  inputRef?: RefObject<any>; // Simple editor doesn't expose HTMLTextAreaElement directly in the same way, but let's see
   onFocus?: () => void;
   icon?: React.ReactNode;
+  highlight: (code: string) => string;
 }
 
 export function EditorPane({ 
@@ -24,7 +25,8 @@ export function EditorPane({
   lineNumbers = true,
   inputRef,
   onFocus,
-  icon
+  icon,
+  highlight
 }: EditorPaneProps) {
   
   // Simple line number counter based on newlines
@@ -42,28 +44,37 @@ export function EditorPane({
       </div>
 
       {/* Editor Area */}
-      <div className="flex-1 flex overflow-hidden relative group">
+      <div className="flex-1 flex overflow-hidden relative group font-mono text-sm">
         
         {/* Line Numbers */}
         {lineNumbers && (
-           <div className="w-12 bg-[#1e1e1e] text-[#858585] text-right font-mono text-xs pt-4 pr-3 leading-6 select-none border-r border-white/5">
+           <div className="w-12 bg-[#1e1e1e] text-[#858585] text-right text-xs pt-4 pr-3 leading-6 select-none border-r border-white/5 font-mono">
              {lineArray.map(ln => (
-               <div key={ln}>{ln}</div>
+               <div key={ln} style={{ height: '24px' }}>{ln}</div>
              ))}
            </div>
         )}
 
-        {/* Text Area */}
-        <textarea
-          className={`flex-1 bg-transparent resize-none focus:outline-none p-4 leading-6 text-sm ${fontClass} w-full h-full text-[#d4d4d4]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          spellCheck={false}
-          autoComplete="off"
-          ref={inputRef}
-          onFocus={onFocus}
-        />
+        {/* Code Editor */}
+        <div className="flex-1 relative overflow-auto custom-scrollbar" onClick={onFocus}>
+            <Editor
+                value={value}
+                onValueChange={onChange}
+                highlight={highlight}
+                padding={16}
+                textareaClassName="focus:outline-none"
+                style={{
+                  fontFamily: fontClass === 'font-arch' ? '"ArchBase4", monospace' : 'monospace',
+                  fontSize: 14,
+                  backgroundColor: 'transparent',
+                  minHeight: '100%',
+                  lineHeight: '24px' // Must match line numbers
+                }}
+                placeholder={placeholder}
+                // @ts-ignore
+                ref={inputRef}
+            />
+        </div>
       </div>
     </div>
   );

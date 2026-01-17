@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Cookies from 'js-cookie'
 import { v1, v2 } from './utils/converter'
+import { highlightSource, highlightArch } from './utils/highlighter'
 import { SplitPane } from './components/SplitPane'
 import { EditorPane } from './components/EditorPane'
 import { MenuBar } from './components/MenuBar'
@@ -16,6 +17,7 @@ function App() {
   const [archText, setArchText] = useState('')
   const [showAbout, setShowAbout] = useState(false);
   const [consent, setConsent] = useState<ConsentStatus>('unknown');
+  const [splitPos, setSplitPos] = useState(50);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -34,11 +36,14 @@ function App() {
       setConsent('accepted');
       const savedVersion = Cookies.get('text2arch_version') as Version | undefined;
       const savedSource = Cookies.get('text2arch_source');
+      const savedLayout = Cookies.get('text2arch_layout');
       
       if (savedVersion) setVersion(savedVersion);
       if (savedSource) {
         setSourceText(savedSource);
-        // We will trigger encoding via the auto-refresh effect below
+      }
+      if (savedLayout) {
+        setSplitPos(Number(savedLayout));
       }
     } else if (savedConsent === 'rejected') {
       setConsent('rejected');
@@ -52,8 +57,9 @@ function App() {
     if (consent === 'accepted') {
       Cookies.set('text2arch_version', version, { expires: 365 });
       Cookies.set('text2arch_source', sourceText, { expires: 365 });
+      Cookies.set('text2arch_layout', String(splitPos), { expires: 365 });
     }
-  }, [consent, version, sourceText]);
+  }, [consent, version, sourceText, splitPos]);
 
   const handleSourceChange = useCallback((text: string) => {
     setSourceText(text);
@@ -85,19 +91,17 @@ function App() {
   const handleCookieAccept = () => {
     setConsent('accepted');
     Cookies.set('text2arch_consent', 'accepted', { expires: 365 });
-    // Trigger immediate save
     Cookies.set('text2arch_version', version, { expires: 365 });
     Cookies.set('text2arch_source', sourceText, { expires: 365 });
+    Cookies.set('text2arch_layout', String(splitPos), { expires: 365 });
   };
 
   const handleCookieDecline = () => {
     setConsent('rejected');
-    // We don't save the 'rejected' preference to a cookie if we strictly follow "no cookies"
-    // But keeping session state 'rejected' prevents popup loop in this session.
-    // User requested "possibly not produce ANY cookie and clear local data"
     Cookies.remove('text2arch_consent');
     Cookies.remove('text2arch_version');
     Cookies.remove('text2arch_source');
+    Cookies.remove('text2arch_layout');
   };
 
   const handleImport = () => {
@@ -146,7 +150,11 @@ function App() {
   const handleClear = () => {
     setSourceText('');
     setArchText('');
-    sourceInputRef.current?.focus();
+    // Focus might be lost, ideally we refocus source.
+  };
+
+  const handleResetLayout = () => {
+    setSplitPos(50);
   };
 
   return (
@@ -179,33 +187,37 @@ function App() {
         onPaste={handlePaste}
         onClear={handleClear}
         onAbout={() => setShowAbout(true)}
+        onResetLayout={handleResetLayout}
       />
       
       <div className="flex-1 overflow-hidden">
         <SplitPane
-          initialSplit={50}
+          splitPos={splitPos}
+          onSplitChange={setSplitPos}
           left={
             <EditorPane 
               title="Plain Text - Source.txt"
               value={sourceText}
               onChange={handleSourceChange}
-              fontClass="font-mono"
+              fontClass="font-mono bg-[#1e1e1e]" // Add bg to ensure editor overlay looks right
               placeholder="Type here to encode..."
               inputRef={sourceInputRef}
               onFocus={() => setActiveInputRef(sourceInputRef)}
               icon={<span className="text-blue-400 font-bold text-xs">TXT</span>}
+              highlight={(code) => highlightSource(code)}
             />
           }
           right={
             <EditorPane 
               title={`Arch Encoded - Output.${version === 'v1' ? 'bin' : 'arch'}`}
               value={archText}
-              onChange={handleArchChange} // Bidirectional support!
-              fontClass="font-arch"
+              onChange={handleArchChange}
+              fontClass="font-arch bg-[#1e1e1e]"
               placeholder="Or type here to decode..."
               inputRef={archInputRef}
               onFocus={() => setActiveInputRef(archInputRef)}
               icon={<img src="/logo.svg" className="w-5 h-5 object-contain" alt="Logo" />}
+              highlight={(code) => highlightArch(code, sourceText, version)} // Map colors!
             />
           }
         />

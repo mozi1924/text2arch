@@ -1,61 +1,75 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect, ReactNode } from 'react'
 
 interface SplitPaneProps {
-  left: React.ReactNode;
-  right: React.ReactNode;
-  initialSplit?: number; // percentage
+  left: ReactNode;
+  right: ReactNode;
+  initialSplit?: number;
+  splitPos?: number;
+  onSplitChange?: (pos: number) => void;
 }
 
-export function SplitPane({ left, right, initialSplit = 50 }: SplitPaneProps) {
-  const [split, setSplit] = useState(initialSplit);
-  const [isDragging, setIsDragging] = useState(false);
+export function SplitPane({ left, right, initialSplit = 50, splitPos, onSplitChange }: SplitPaneProps) {
+  const [internalSplit, setInternalSplit] = useState(initialSplit);
+  const split = splitPos !== undefined ? splitPos : internalSplit;
+  
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    e.preventDefault();
+  useEffect(() => {
+    if (splitPos === undefined) {
+        setInternalSplit(initialSplit);
+    }
+  }, [initialSplit, splitPos]);
+
+  const handleMouseDown = () => {
+    isDragging.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const width = rect.width;
-      const newSplit = Math.max(10, Math.min(90, (x / width) * 100)); // Clamp between 10% and 90%
-      setSplit(newSplit);
+      if (!isDragging.current || !containerRef.current) return;
+      
+      const { left, width } = containerRef.current.getBoundingClientRect();
+      const newSplit = ((e.clientX - left) / width) * 100;
+      
+      const clampedSplit = Math.min(Math.max(newSplit, 20), 80);
+      
+      if (splitPos === undefined) {
+        setInternalSplit(clampedSplit);
+      }
+      
+      onSplitChange?.(clampedSplit);
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
     };
 
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging]);
+  }, [onSplitChange, splitPos]);
 
   return (
-    <div ref={containerRef} className="flex flex-1 h-full w-full overflow-hidden relative">
-      <div style={{ width: `${split}%` }} className="h-full overflow-hidden relative z-0">
+    <div ref={containerRef} className="flex h-full w-full">
+      <div style={{ width: `${split}%` }} className="h-full overflow-hidden">
         {left}
       </div>
       
-      {/* Resizer Handle */}
-      <div
-        className={`w-1 h-full cursor-col-resize hover:bg-blue-500 transition-colors z-10 flex flex-col justify-center items-center group relative -ml-0.5 ${isDragging ? 'bg-blue-600' : 'bg-white/10'}`}
+      <div 
+        className="w-1 bg-[#333] hover:bg-[#007acc] cursor-col-resize transition-colors z-10 flex items-center justify-center"
         onMouseDown={handleMouseDown}
-      >
-         <div className="h-8 w-1 bg-white/20 rounded-full group-hover:bg-white/50 transition-colors" />
-      </div>
-
-      <div style={{ width: `${100 - split}%` }} className="h-full overflow-hidden relative z-0">
+      />
+      
+      <div style={{ width: `${100 - split}%` }} className="h-full overflow-hidden">
         {right}
       </div>
     </div>

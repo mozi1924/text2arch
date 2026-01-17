@@ -1,62 +1,71 @@
+<p align="center">
+  <img src="public/logo.svg" alt="Text2Arch Logo" width="120" />
+</p>
+
 # Text2Arch
 
-A professional, modern tool to encode/decode text into the "i use arch btw" quaternary format.
+> **The Professional ArchBase4 Editor**
+
+Text2Arch is a state-of-the-art text encoding tool tailored for the **ArchBase4** quaternary format. Designed for precision and ease of use, it features a split-pane interface with real-time bidirectional editing, syntax highlighting, and persistent layout management.
+
+## Features
+
+- **Bidirectional Editing**: Changes in the source text instantly update the encoded output, and vice versa.
+- **Dual Protocol Support**:
+  - **v2 (Default)**: Paragraph-preserving encoding for structured output.
+  - **v1 (Legacy)**: Classic continuous stream encoding.
+- **Quaternary Syntax Highlighting**: Visual distinction for `i`, `use`, `arch`, `btw` tokens.
+- **Smart Layout**: Resizable panes that remember user settings significantly enhance workflow.
+- **Dark Mode Optimization**: A sleek, dark-themed UI built for prolonged coding sessions.
 
 ## Technologies
 
-- React
-- TypeScript
-- Tailwind CSS
-- Vite
+Built with a modern stack for high performance and maintainability:
 
-## Development
+- **React 18**
+- **TypeScript**
+- **Vite**
+- **Tailwind CSS**
 
-1. Clone the repository
+## Getting Started
 
-```bash
-git clone https://github.com/mozi1924/text2arch.git
-```
+### Prerequisites
 
-2. Install dependencies
+- Node.js (Latest LTS recommended)
 
-```bash
-npm install
-```
+### Installation
 
-3. Run dev server
+1.  **Clone the repository**
 
-```bash
-npm run dev
-```
+    ```bash
+    git clone https://github.com/mozi1924/text2arch.git
+    cd text2arch
+    ```
 
-4. Build
+2.  **Install dependencies**
 
-```bash
-npm run build
-```
+    ```bash
+    npm install
+    ```
 
-## How it works
+3.  **Start the development server**
 
-The tool uses a quaternary (base-4) encoding scheme mapping to the words:
+    ```bash
+    npm run dev
+    ```
 
-```
-0 = i
-1 = use
-2 = arch
-3 = btw
-```
+4.  **Build for production**
 
-Original concept by mozi1924.
+    ```bash
+    npm run build
+    ```
 
-## Protocol Versions
+## ArchBase4 Spec
 
-### ArchBase4 v2 (Current)
+### v2 (Structural)
 
-- **Feature**: Preserves paragraph structure (newlines) from original text.
-- **Output**: Multi-line "carefully arranged" ciphertext.
-- **Compatibility**: v2 decoder handles v2 encoded text correctly.
+Preserves original paragraph formatting, generating a structured and readable ciphertext.
 
 ### v1 (Legacy)
 
-- Single continuous stream of data.
-- Newlines were encoded as bytes, losing visual structure.
+Encodes everything into a single continuous stream, treating newlines as standard bytes.
