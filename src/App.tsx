@@ -8,6 +8,8 @@ import { MenuBar } from './components/MenuBar'
 import { AboutWindow } from './components/AboutWindow'
 import { CookieConsent } from './components/CookieConsent'
 
+import { GoogleAnalytics } from './components/Analytics'
+
 type Version = 'v1' | 'v2';
 type ConsentStatus = 'unknown' | 'accepted' | 'rejected';
 
@@ -188,6 +190,7 @@ function App() {
           onDecline={handleCookieDecline} 
         />
       )}
+      <GoogleAnalytics consent={consent} />
       
       <input 
         type="file" 

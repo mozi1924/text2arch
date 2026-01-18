@@ -17,9 +17,7 @@ export function CookieConsent({ onAccept, onDecline }: CookieConsentProps) {
               <InfoIcon />
             </div>
             <div className="flex-1">
-              <p className="leading-5">
-                Do you allow this editor to save your content and settings to cookies?
-              </p>
+                Do you allow this editor to save your content, settings, and usage data for Google Analytics to cookies?
             </div>
           </div>
 
