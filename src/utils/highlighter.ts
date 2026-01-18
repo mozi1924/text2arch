@@ -42,8 +42,9 @@ export function highlightArch(archCode: string, sourceCode: string, version: 'v1
         if (typeof token === 'string') {
              return converter.encode(token);
         } else if (Array.isArray(token.content)) {
-            // Nested tokens
-            const encodedContent = (token.content as Array<string | Prism.Token>).map(encodeToken).join('');
+            // Nested tokens. Join with space, but clean up newline surroundings
+            const raw = (token.content as Array<string | Prism.Token>).map(encodeToken).join(' ');
+            const encodedContent = raw.replace(/ \n/g, '\n').replace(/\n /g, '\n');
             return `<span class="token ${token.type}">${encodedContent}</span>`;
         } else {
             // Single content
@@ -53,5 +54,7 @@ export function highlightArch(archCode: string, sourceCode: string, version: 'v1
         }
     };
 
-    return tokens.map(encodeToken).join('');
+    // Join with space, then remove spaces around newlines to prevent weird indentation
+    const raw = tokens.map(encodeToken).join(' ');
+    return raw.replace(/ \n/g, '\n').replace(/\n /g, '\n');
 }
