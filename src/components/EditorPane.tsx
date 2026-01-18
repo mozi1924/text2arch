@@ -56,7 +56,7 @@ export function EditorPane({
         )}
 
         {/* Code Editor */}
-        <div className="flex-1 relative overflow-auto custom-scrollbar" onClick={onFocus}>
+        <div className="flex-1 relative overflow-auto custom-scrollbar editor-nowrap" onClick={onFocus}>
             <Editor
                 value={value}
                 onValueChange={onChange}
@@ -68,8 +68,12 @@ export function EditorPane({
                   fontSize: 14,
                   backgroundColor: 'transparent',
                   minHeight: '100%',
-                  lineHeight: '24px' // Must match line numbers
+                  minWidth: '100%', 
+                  width: 'max-content', // Forces container to expand to fit text width
+                  lineHeight: '24px',
+                  overflow: 'visible' // Override react-simple-code-editor default hidden
                 }}
+                textareaId="code-area"
                 placeholder={placeholder}
                 // @ts-ignore
                 ref={inputRef}

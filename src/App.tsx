@@ -28,6 +28,9 @@ function App() {
 
   const converter = version === 'v1' ? v1 : v2;
 
+  const [focusedPane, setFocusedPane] = useState<'left' | 'right' | null>(null);
+
+
   // Load state from cookies on valid consent
   useEffect(() => {
     const savedConsent = Cookies.get('text2arch_consent') as ConsentStatus | undefined;
@@ -37,14 +40,25 @@ function App() {
       const savedVersion = Cookies.get('text2arch_version') as Version | undefined;
       const savedSource = Cookies.get('text2arch_source');
       const savedLayout = Cookies.get('text2arch_layout');
+
       
       if (savedVersion) setVersion(savedVersion);
       if (savedSource) {
         setSourceText(savedSource);
+        // Synchronize archText immediately to prevent ghosting
+        const ver = (savedVersion || 'v2') as Version;
+        const conv = ver === 'v1' ? v1 : v2;
+        try {
+           const encoded = conv.encode(savedSource);
+           setArchText(encoded);
+        } catch (e) {
+           setArchText(`Error encoding: ${e}`);
+        }
       }
       if (savedLayout) {
         setSplitPos(Number(savedLayout));
       }
+
     } else if (savedConsent === 'rejected') {
       setConsent('rejected');
     } else {
@@ -58,11 +72,17 @@ function App() {
       Cookies.set('text2arch_version', version, { expires: 365 });
       Cookies.set('text2arch_source', sourceText, { expires: 365 });
       Cookies.set('text2arch_layout', String(splitPos), { expires: 365 });
+
     }
   }, [consent, version, sourceText, splitPos]);
 
   const handleSourceChange = useCallback((text: string) => {
     setSourceText(text);
+    // Only auto-update Arch if we are NOT focusing on the right pane (i.e. we are editing source)
+    // Or if we are programmatically setting it (like clear/import).
+    // Actually, simple rule: If editing source, update arch.
+    // If editing arch, update source.
+    // The issue was visual ghosting.
     try {
       const encoded = converter.encode(text);
       setArchText(encoded);
@@ -94,6 +114,7 @@ function App() {
     Cookies.set('text2arch_version', version, { expires: 365 });
     Cookies.set('text2arch_source', sourceText, { expires: 365 });
     Cookies.set('text2arch_layout', String(splitPos), { expires: 365 });
+
   };
 
   const handleCookieDecline = () => {
@@ -102,6 +123,7 @@ function App() {
     Cookies.remove('text2arch_version');
     Cookies.remove('text2arch_source');
     Cookies.remove('text2arch_layout');
+    Cookies.remove('text2arch_wordwrap');
   };
 
   const handleImport = () => {
@@ -179,6 +201,7 @@ function App() {
         version={version} 
         setVersion={setVersion}
         onImport={handleImport}
+
         onExport={handleExport}
         onUndo={handleUndo}
         onRedo={handleRedo}
@@ -202,7 +225,10 @@ function App() {
               fontClass="font-mono bg-[#1e1e1e]" // Add bg to ensure editor overlay looks right
               placeholder="Type here to encode..."
               inputRef={sourceInputRef}
-              onFocus={() => setActiveInputRef(sourceInputRef)}
+              onFocus={() => {
+                setActiveInputRef(sourceInputRef);
+                setFocusedPane('left');
+              }}
               icon={<span className="text-blue-400 font-bold text-xs">TXT</span>}
               highlight={(code) => highlightSource(code)}
             />
@@ -215,9 +241,16 @@ function App() {
               fontClass="font-arch bg-[#1e1e1e]"
               placeholder="Or type here to decode..."
               inputRef={archInputRef}
-              onFocus={() => setActiveInputRef(archInputRef)}
+              onFocus={() => {
+                setActiveInputRef(archInputRef);
+                setFocusedPane('right');
+              }}
               icon={<img src="/logo.svg" className="w-5 h-5 object-contain" alt="Logo" />}
-              highlight={(code) => highlightArch(code, sourceText, version)} // Map colors!
+              highlight={(code) => {
+                // If editing Right pane, disable complex mapping to avoid ghosting
+                if (focusedPane === 'right') return code; 
+                return highlightArch(code, sourceText, version);
+              }}
             />
           }
         />

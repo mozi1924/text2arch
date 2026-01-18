@@ -2,17 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Kabel";
-  src: url("/ITC-Kabel-Std-Book.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
+@layer utilities {
+    .font-arch {
+        font-family: 'ArchBase4', monospace;
+    }
+    
+    /* Enforce no-wrap behavior */
+    .editor-nowrap textarea,
+    .editor-nowrap pre {
+        white-space: pre !important; 
+        overflow-wrap: normal !important;
+    }
+
+
 }
 
-body {
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #424242;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4f4f4f;
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Custom Scrollbar for the editor specifically if needed, but global usually works for VS Code vibe */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 14px; /* VS Code often uses strictly 14px or 10px depending on ui density */
 }
